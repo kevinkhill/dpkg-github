@@ -24,14 +24,6 @@ function out () {
   fi
 }
 
-#function get_version_of_deb () {
-#  dpkg-deb -f "$1" Version
-#}
-
-#function get_installed_pkg_version () {
-#  dpkg -s "$1" | grep Version | awk -F' ' '{ print $2 }'
-#}
-
 function get_latest_release_urls () {
   local url="https://api.github.com/repos/${1}/releases/latest"
 
@@ -89,13 +81,6 @@ function get_latest_deb_version () {
   echo "${packver#*_}"
 }
 
-function deb_is_newer () {
-  local deb_version="$(get_version_of_deb "$1")"
-  local installed_version="$(get_installed_pkg_version "$2")"
-
-  return $(dpkg --compare-versions "$deb_version" gt "$installed_version")
-}
-
 function usage {
   echo ""
   echo "Usage:"
@@ -113,31 +98,6 @@ function usage {
   echo ""
 }
 
-function examples {
-  echo "Examples:"
-  echo " $ dpkg-github -v sharkdp/fd"
-  echo " 7.2.0"
-  echo ""
-  echo " $ dpkg-github -l sharkdp/fd"
-  echo " https://github.com/sharkdp/fd/releases/download/v7.2.0/fd-musl_7.2.0_amd64.deb"
-  echo " https://github.com/sharkdp/fd/releases/download/v7.2.0/fd-musl_7.2.0_i386.deb"
-  echo " https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb"
-  echo " https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_i386.deb"
-  echo ""
-  echo " $ dpkg-github -u sharkdp/fd"
-  echo " https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_amd64.deb"
-  echo ""
-  echo " $ dpkg-github -a i386 -u sharkdp/fd"
-  echo " > https://github.com/sharkdp/fd/releases/download/v7.2.0/fd_7.2.0_i386.deb"
-  echo ""
-  echo " $ dpkg-github -i sharkdp/fd"
-  echo " dpkg-github: Fetching .deb for sharkdp/fd"
-  echo " dpkg-github: Querying Github for latest release."
-  echo " dpkg-github: Found fd_7.2.0_amd64.deb"
-  echo " ..."
-  echo " # Downloads and then runs \$(sudo dpkg -i <.deb>) to install"
-}
-
 function __exit () {
   usage
   exit 1
@@ -147,7 +107,7 @@ function __exit () {
 while getopts ":hsa:d:i:l:u:v:" options
 do
   case "${options}" in
-    h) usage; echo ""; examples; exit;;
+    h) usage;;
     s) silent=true;;
     a) arch="${OPTARG}";;
 
